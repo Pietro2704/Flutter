@@ -1,7 +1,7 @@
 // Aplicativo de cálculo de combustível
 // ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -29,8 +29,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   // TextEditingController: campo de entrada de dados texto (input)
-  TextEditingController alcoolController = TextEditingController();
-  TextEditingController gasolinaController = TextEditingController();
+  TextEditingController pesoController = TextEditingController();
+  TextEditingController alturaController = TextEditingController();
 
   // texto de resposta da aplicação
   String _resultado = ''; 
@@ -41,8 +41,8 @@ class _HomeState extends State<Home> {
   // limpa os campos do formulário e o seu estado
   void _reset() {
     setState(() {
-      alcoolController.text = '';
-      gasolinaController.text = '';
+      pesoController.text = '';
+      alturaController.text = '';
       _resultado = '';
       _formKey = GlobalKey<FormState>();
     });
@@ -50,12 +50,30 @@ class _HomeState extends State<Home> {
 
   // NÃO PODE ESQUECER o setState() dentro de um método que fará alguma alteração em variáveis e/ou objetos
   void _calcularCombustivel() {
-    double varGasolina = double.parse(gasolinaController.text.replaceAll(',', '.'));
-    double varAlcool = double.parse(alcoolController.text.replaceAll(',', '.'));
-    double proporcao = varAlcool / varGasolina; // proporção de 70%
+    double varPeso = double.parse(pesoController.text.replaceAll(',', '.'));
+    double varAltura = double.parse(alturaController.text.replaceAll(',', '.'));
+
+    double imc = varPeso / (varAltura * varAltura);
+
+    String resultado;
+    if (imc < 18.5) {
+      resultado = 'Abaixo do peso';
+    } else if (imc >= 18.5 && imc <= 24.9) {
+      resultado = 'Peso normal';
+    } else if (imc >= 25.0 && imc <= 29.9) {
+      resultado = 'Sobrepeso';
+    } else if (imc >= 30.0 && imc <= 34.9) {
+      resultado = 'Obesidade Grau I';
+    } else if (imc >= 35.0 && imc <= 39.9) {
+      resultado = 'Obesidade Grau II';
+    } else {
+      resultado = 'Obesidade Grau III';
+    }
+
     setState(() {
-      _resultado = (proporcao < 0.7) ? 'Abasteça com álcool' : 'Abasteça com gasolina';
+      _resultado = 'Seu IMC é $imc e indica $resultado.';
     });
+
   }
 
   // Construtor
@@ -66,7 +84,7 @@ class _HomeState extends State<Home> {
       // barra superior
       appBar: AppBar(
         title: const Text(
-          'Título do APP',
+          'IMC',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -93,21 +111,21 @@ class _HomeState extends State<Home> {
             // Inputs
             children: <Widget>[
               const Icon(
-                Icons.local_gas_station,
+                Icons.scale,
                 size: 70.0,
                 color: Colors.lightBlue,
               ),
 
 
               TextFormField(
-                controller: alcoolController,
+                controller: pesoController,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty
                     ? 'Esse valor é obrigatório'
                     : null, // validacão de dados
                 decoration: InputDecoration(
-                  labelText: 'Valor do litro do Álcool',
+                  labelText: 'Digite seu Peso: ',
                   labelStyle: TextStyle(color: Colors.lightBlue[900]),
                 ),
                 style: TextStyle(color: Colors.lightBlue[900], fontSize: 25.0),
@@ -115,14 +133,14 @@ class _HomeState extends State<Home> {
 
 
               TextFormField(
-                controller: gasolinaController,
+                controller: alturaController,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty
                     ? 'Esse valor é obrigatório'
                     : null, // validacão de dados
                 decoration: InputDecoration(
-                  labelText: 'Valor do litro da Gasolina',
+                  labelText: 'Digite sua Altura:',
                   labelStyle: TextStyle(color: Colors.lightBlue[900]),
                 ),
                 style: TextStyle(color: Colors.lightBlue[900], fontSize: 25.0),
@@ -140,7 +158,7 @@ class _HomeState extends State<Home> {
                         _calcularCombustivel();
                       }
                     },
-                    fillColor: Colors.lightBlue,
+                    fillColor: Colors.lightBlue[900],
                     child: const Text(
                       'Calcular',
                       style: TextStyle(color: Colors.white, fontSize: 25.0),
